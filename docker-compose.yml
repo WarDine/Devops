@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
     ui:
-        build: ./ui #TODO 
+        image: ui #TODO 
         ports:
             - 80:80
         deploy:
@@ -15,12 +15,15 @@ services:
             rollback_config:
                 parallelism: 2
                 order: start-first
+        depends_on:
+            - recipe-manager-service
+            - mass-halls-manager-service
         networks:
             - ui-recipe-manager
             - ui-mass-halls
   
     recipe-manager-service:
-        build: ./recipe-manager-service
+        image: recipe-manager-service #TODO 
         deploy:
             replicas: 2
             placement:
@@ -29,12 +32,14 @@ services:
                 order: start-first
             rollback_config:
                 order: start-first
+        depends_on:
+            - db
         networks:
             - ui-recipe-manager
             - recipe-manager-db
 
     mass-halls-manager-service:
-        build: ./mass-halls-manager-service
+        image: mass-halls-manager-service #TODO 
         deploy:
             replicas: 6
             placement:
@@ -43,6 +48,8 @@ services:
                 order: start-first
             rollback_config:
                 order: start-first
+        depends_on:
+            - db
         networks:
             - ui-mass-halls
             - mass-halls-manager-db
