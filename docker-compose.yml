@@ -74,7 +74,7 @@ services:
     kong:
         image: kong:latest
         volumes:
-            - ./Kong:/usr/local/kong/declarative
+            - ./kong:/usr/local/kong/declarative
         environment:
             KONG_DATABASE: 'off'
             KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong-plugins.yml
