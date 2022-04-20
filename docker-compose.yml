@@ -86,12 +86,32 @@ services:
         ports:
             - 80:8000
             - 443:8443
+            - 8001:8001
+            - 8444:8444
             #TODO logging purposes
         deploy:
             placement:
                 constraints: [node.role == manager]
         networks:
             - kong-ui
+            - logging
+
+    grafana:
+        image: grafana/grafana:latest
+        volumes:
+            - ./grafana/data:/var/lib/grafana
+        ports:
+            - 3000:3000
+        networks:
+            - logging
+    
+    prometheus:
+        image: prom/prometheus
+        volumes:
+            - ./prometheus/config.yml:/etc/prometheus/prometheus.yml
+        ports:
+            - 9090:9090
+        networks:
             - logging
 
 
