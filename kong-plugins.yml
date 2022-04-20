@@ -1,0 +1,24 @@
+_format_version: "2.1"
+
+services:
+  - name: ui
+    url: http://ui/ #TODO
+    routes:
+      - name: ui-route
+        paths: 
+          - / #TODO
+    
+plugins:
+  - name: rate-limiting
+    config: 
+      minute: 15
+      limit_by: ip
+      policy: local
+
+  - name: cors
+    service: ui
+    config:
+      origins: 
+       - "*"
+
+  - name: bot-detection
