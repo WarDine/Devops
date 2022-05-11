@@ -1,3 +1,6 @@
+create database recipe;
+\c recipe;
+
 create sequence mass_hall_admins_seq;
 create sequence mass_hall_seq;
 create sequence menu_seq;

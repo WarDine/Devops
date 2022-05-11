@@ -1,58 +1,58 @@
 version: "3.8"
 
 services:
-    ui:
-        image: ui #TODO 
-        ports:
-            - 80:80
-        deploy:
-            replicas: 10
-            placement:
-                max_replicas_per_node: 2
-            update_config:
-                parallelism: 2
-                order: start-first
-            rollback_config:
-                parallelism: 2
-                order: start-first
-        depends_on:
-            - recipe-manager-service
-            - mass-halls-manager-service
-        networks:
-            - ui-recipe-manager
-            - ui-mass-halls
+    # ui:
+    #     image: ui #TODO 
+    #     ports:
+    #         - 80:80
+    #     deploy:
+    #         replicas: 10
+    #         placement:
+    #             max_replicas_per_node: 2
+    #         update_config:
+    #             parallelism: 2
+    #             order: start-first
+    #         rollback_config:
+    #             parallelism: 2
+    #             order: start-first
+    #     depends_on:
+    #         - recipe-manager-service
+    #         - mass-halls-manager-service
+    #     networks:
+    #         - ui-recipe-manager
+    #         - ui-mass-halls
   
-    recipe-manager-service:
-        image: recipe-manager-service #TODO 
-        deploy:
-            replicas: 2
-            placement:
-                max_replicas_per_node: 1
-            update_config:
-                order: start-first
-            rollback_config:
-                order: start-first
-        depends_on:
-            - db
-        networks:
-            - ui-recipe-manager
-            - recipe-manager-db
+    # recipe-manager-service:
+    #     image: recipe-manager-service #TODO 
+    #     deploy:
+    #         replicas: 2
+    #         placement:
+    #             max_replicas_per_node: 1
+    #         update_config:
+    #             order: start-first
+    #         rollback_config:
+    #             order: start-first
+    #     depends_on:
+    #         - db
+    #     networks:
+    #         - ui-recipe-manager
+    #         - recipe-manager-db
 
-    mass-halls-manager-service:
-        image: mass-halls-manager-service #TODO 
-        deploy:
-            replicas: 6
-            placement:
-                max_replicas_per_node: 2
-            update_config:
-                order: start-first
-            rollback_config:
-                order: start-first
-        depends_on:
-            - db
-        networks:
-            - ui-mass-halls
-            - mass-halls-manager-db
+    # mass-halls-manager-service:
+    #     image: mass-halls-manager-service #TODO 
+    #     deploy:
+    #         replicas: 6
+    #         placement:
+    #             max_replicas_per_node: 2
+    #         update_config:
+    #             order: start-first
+    #         rollback_config:
+    #             order: start-first
+    #     depends_on:
+    #         - db
+    #     networks:
+    #         - ui-mass-halls
+    #         - mass-halls-manager-db
 
     db:
         image: postgres:12
@@ -64,12 +64,15 @@ services:
             placement:
                 constraints:
                     - "node.role==manager"
+        ports:
+            - 9999:5432
         volumes:
-            - ./database/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql #TODO
+            - ./database/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
             - db-volume:/var/lib/postgresql/data
         networks:
             - recipe-manager-db
             - mass-halls-manager-db
+            - grafana-db
 
     kong:
         image: kong:latest
@@ -84,7 +87,7 @@ services:
             KONG_ADMIN_ERROR_LOG: /dev/stderr
             KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl #CHECK in case of error
         ports:
-            - 80:8000
+            - 90:8000
             - 443:8443
             - 8001:8001
             - 8444:8444
@@ -100,10 +103,14 @@ services:
         image: grafana/grafana:latest
         volumes:
             - ./grafana/data:/var/lib/grafana
+        environment:
+            - GF_SECURITY_ADMIN_USER=admin
+            - GF_SECURITY_ADMIN_PASSWORD=admin
         ports:
             - 3000:3000
         networks:
             - logging
+            - grafana-db
     
     prometheus:
         image: prom/prometheus
@@ -124,4 +131,5 @@ networks:
     recipe-manager-db:
     mass-halls-manager-db:
     kong-ui:
+    grafana-db:
     logging:
