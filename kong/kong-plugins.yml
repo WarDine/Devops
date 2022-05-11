@@ -8,24 +8,24 @@ services:
         paths: 
           - /ui #TODO
 
-  - name: grafana
-    url: http://grafana:3000
-    routes:
-      - name: grafana-route
-        paths:
-          - /grafana
+  # - name: grafana
+  #   url: http://grafana:3000
+  #   routes:
+  #     - name: grafana-route
+  #       paths:
+  #         - /grafana
 
-  - name: portainer
-    url: http://portainer:9000
-    routes:
-      - name: portainer-route
-        paths:
-          - /portainer
+  # - name: portainer
+  #   url: http://portainer:9000
+  #   routes:
+  #     - name: portainer-route
+  #       paths:
+  #         - /portainer
     
 plugins:
   - name: rate-limiting
     config: 
-      minute: 15
+      minute: 10000
       limit_by: ip
       policy: local
 

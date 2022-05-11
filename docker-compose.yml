@@ -102,9 +102,13 @@ services:
         image: grafana/grafana:latest
         volumes:
             - ./grafana/data:/var/lib/grafana
+            - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+            - ./grafana/datasources:/etc/grafana/provisioning/datasources
         environment:
             - GF_SECURITY_ADMIN_USER=admin
             - GF_SECURITY_ADMIN_PASSWORD=admin
+        depends_on:
+            - db
         ports:
             - 3000:3000
         networks:
