@@ -32,4 +32,4 @@ jobs:
       with:
         context: .
         push: true
-        tags: mass-halls-manager-service:latest recipe-manager-service:latest ui:latest
+        tags: mass-halls-manager-service:latest
