@@ -111,6 +111,9 @@ services:
             - db
         ports:
             - 3000:3000
+        deploy:
+            placement:
+                constraints: [node.role == manager]
         networks:
             - logging
             - grafana-db
@@ -121,6 +124,9 @@ services:
             - ./prometheus/config.yml:/etc/prometheus/prometheus.yml
         ports:
             - 9090:9090
+        deploy:
+            placement:
+                constraints: [node.role == manager]
         networks:
             - logging
 
