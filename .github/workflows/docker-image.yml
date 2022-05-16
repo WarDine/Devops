@@ -19,7 +19,7 @@ jobs:
     - name: Build MassHalls
       run: sudo docker build ./recipe-manager-service -t recipe-manager-service
     - name: Build Recipe
-      run: sudo docker build ./mass-halls-manager-service -t mass-halls-manager-service 
+      run: sudo docker build ./mass-halls-manager-service -t ${{ secrets.DOCKER_HUB_USERNAME }}/mass-halls-manager-service 
     - name: Login to Docker Hub
       uses: docker/login-action@v1
       with:
