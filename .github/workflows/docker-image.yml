@@ -15,9 +15,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build Frontend
-      run: sudo docker build ./ui -t ui
+      run: sudo docker build ./ui -t ${{ secrets.DOCKER_HUB_USERNAME }}/ui
     - name: Build MassHalls
-      run: sudo docker build ./recipe-manager-service -t recipe-manager-service
+      run: sudo docker build ./recipe-manager-service -t ${{ secrets.DOCKER_HUB_USERNAME }}/recipe-manager-service
     - name: Build Recipe
       run: sudo docker build ./mass-halls-manager-service -t ${{ secrets.DOCKER_HUB_USERNAME }}/mass-halls-manager-service 
     - name: Login to Docker Hub
@@ -26,4 +26,7 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
     - name: Publish docker image
-      run: docker push ${{ secrets.DOCKER_HUB_USERNAME }}/mass-halls-manager-service
+      run: |-
+        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/mass-halls-manager-service
+        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/recipe-manager-service
+        docker push ${{ secrets.DOCKER_HUB_USERNAME }}/ui
