@@ -1,3 +1,6 @@
+create database recipe;
+\c recipe;
+
 create sequence mass_hall_admins_seq;
 create sequence mass_hall_seq;
 create sequence menu_seq;
@@ -25,14 +28,14 @@ create table mass_halls_admins (
                                    mass_halls_admins_uid integer primary key not null default nextval('mass_hall_admins_seq'),
                                    nickname varchar(255) not null,
                                    mass_hall_uid integer unique ,
-                                   constraint fk_mass_halls_admins foreign key (mass_hall_uid) references mass_hall (mass_hall_uid)
+                                   constraint fk_mass_halls_admins foreign key (mass_hall_uid) references mass_hall (mass_halls_uid)
 );
 
 create table main_admins (
     main_admin_uid integer primary key not null default nextval('main_admin_seq'),
     mass_hall_admin_uid integer,
     nickname varchar(255) not null,
-    constraint fk_main_admins foreign key (mass_halls_admin_uid) references mass_halls_admins (mass_halls_admin_uid)
+    constraint fk_main_admins foreign key (mass_hall_admin_uid) references mass_halls_admins (mass_halls_admins_uid)
     );
 
 create table recipe (
@@ -40,11 +43,11 @@ create table recipe (
     mass_hall_uid integer,
     nname varchar(255) not null,
     description varchar(1000) not null,
-    calories double,
+    calories integer,
     cooking_time timestamp ,
     instructions varchar(255),
     portions integer,
-    constraint fk_recipe foreign key (mass_hall_uid) references mass_hall (mass_hall_uid)
+    constraint fk_recipe foreign key (mass_hall_uid) references mass_hall (mass_halls_uid)
     );
 
 create table ingredient (
