@@ -36,9 +36,13 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:    
-    - name: Webhook POST Action to Portainer
+      - name: Deploy the stack
+        run: |-
+          sudo docker stack deploy -c docker-compose-portainer.yml PortainerStack
+          sudo docker stack deploy -c docker-compose.yml WarDineStack
+#     - name: Webhook POST Action to Portainer
       # You may pin to the exact commit or the version.
       # uses: muinmomin/webhook-action@7c067ef19e5de3aca7aebda32628f1d08d06bf89
-      uses: muinmomin/webhook-action@v1.0.0
-      with:
-        url: http://localhost:9000/api/webhooks/2d7381a6-08d4-4ead-bd68-45114d73cb64
+#       uses: muinmomin/webhook-action@v1.0.0
+#       with:
+#         url: http://localhost:9000/api/webhooks/2d7381a6-08d4-4ead-bd68-45114d73cb64
