@@ -31,10 +31,19 @@ jobs:
         docker push ${{ secrets.DOCKER_HUB_USERNAME }}/recipe-manager-service
         docker push ${{ secrets.DOCKER_HUB_USERNAME }}/ui
   
+  tests:
+    runs-on: ubuntu-latest
+
+    needs: build
+    
+    steps:
+    - name: Golang-Linter  
+      uses: Mushus/golangci-linter@v1.1.2
+
   deploy:
     
     runs-on: ubuntu-latest
-    needs: build
+    needs: tests
     steps:    
       - uses: actions/checkout@main
       - name: Deploy the stack
