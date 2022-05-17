@@ -39,6 +39,10 @@ jobs:
       - uses: actions/checkout@main
       - name: Deploy the stack
         run: |-
+          sudo docker swarm init 
+          sudo docker pull 17031999/ui
+          sudo docker pull 17031999/recipe-manager-service
+          sudo docker pull 17031999/mass-halls-manager-service
           sudo docker stack deploy -c docker-compose-portainer.yml PortainerStack
           sudo docker stack deploy -c docker-compose.yml WarDineStack
 #     - name: Webhook POST Action to Portainer
