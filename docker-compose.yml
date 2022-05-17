@@ -130,6 +130,15 @@ services:
         networks:
             - logging
 
+    rabbitmq:
+        image: rabbitmq:management-alpine
+        ports:
+            - 5672:5672
+            - 15672:15672
+        networks:
+            - logging
+        hostname: rabbitmq
+
 
 volumes:
     db-volume:
