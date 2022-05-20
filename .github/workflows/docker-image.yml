@@ -59,4 +59,4 @@ jobs:
       - name: Webhook POST Action to Portainer
         uses: muinmomin/webhook-action@v1.0.0
         with:
-          url: http://localhost:9000/api/webhooks/2d7381a6-08d4-4ead-bd68-45114d73cb64
+          url: http://localhost:9000/api/webhooks/d10457e6-54fd-4836-961c-c9c4814dad7b
