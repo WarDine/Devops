@@ -1,6 +1,17 @@
 version: "3.8"
 
 services:
+    runner:
+        image: tcardonne/github-runner:latest
+        environment:
+            RUNNER_NAME: "wardine-devops-runner"
+            RUNNER_REPOSITORY_URL: "https://github.com/WarDine/Devops"
+            RUNNER_TOKEN: "ANRSCPT2MB6WZGC6EZ7JDTLCRFDXK"
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        networks:
+            - runner_ci
+
     agent:
         image: portainer/agent
         volumes:
@@ -23,6 +34,7 @@ services:
             - portainer_data:/data
         networks:
             - agent_network
+            - runner_ci
         deploy:
             mode: replicated
             replicas: 1
@@ -30,6 +42,7 @@ services:
                 constraints: [node.role == manager]
 
 networks:
+    runner_ci:
     agent_network:
         driver: overlay
         attachable: true

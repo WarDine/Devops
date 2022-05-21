@@ -54,15 +54,6 @@ services:
     #         - ui-mass-halls
     #         - mass-halls-manager-db
 
-    runner:
-        image: tcardonne/github-runner:latest
-        environment:
-            RUNNER_NAME: "wardine-devops-runner"
-            RUNNER_REPOSITORY_URL: "https://github.com/WarDine/Devops"
-            RUNNER_TOKEN: "ANRSCPTECWSH6JXOQBGNGYTCRAIJW"
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-
     db:
         image: postgres:12
         environment:
