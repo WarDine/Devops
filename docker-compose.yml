@@ -54,128 +54,215 @@ services:
     #         - ui-mass-halls
     #         - mass-halls-manager-db
 
-    db:
-        image: postgres:12
-        environment:
-            POSTGRES_USER: admin #TODO
-            POSTGRES_PASSWORD: admin #TODO
-        deploy:
-            placement:
-                constraints:
-                    - "node.role==manager"
-        ports:
-            - 9999:5432
-        volumes:
-            - ./database/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-            - db-volume:/var/lib/postgresql/data
-        networks:
-            - recipe-manager-db
-            - mass-halls-manager-db
-            - grafana-db
+  messhallmanager-service:
+    image: messhallmanager:latest
+    # build:
+    #   dockerfile: ./messhallmanager/Dockerfile
+    #   # context: .
+    #   target: dev
+    container_name: messhallmanager
+    hostname: messhallmanager
+    ports:
+      - "8081:81"
+    environment:                                                                
+      PGHOST: db
+      PGUSER: ${PGUSER}
+      PGPASSWORD: ${PGPASSWORD}
+      PGPORT: 5432
+      PGDATABASE: ${PGDATABASE}
+    volumes:
+      - ../:/usr/src/app
+    depends_on:
+      - db
+    networks:
+      - internal-network
+      - cluster
 
-    kong:
-        image: kong:latest
-        volumes:
-            - ./kong:/usr/local/kong/declarative
-        environment:
-            KONG_DATABASE: 'off'
-            KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong-plugins.yml
-            KONG_PROXY_ACCESS_LOG: /dev/stdout
-            KONG_ADMIN_ACCESS_LOG: /dev/stdout
-            KONG_PROXY_ERROR_LOG: /dev/stderr
-            KONG_ADMIN_ERROR_LOG: /dev/stderr
-            KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl #CHECK in case of error
-        ports:
-            - 90:8000
-            - 443:8443
-            - 8001:8001
-            - 8444:8444
-            #TODO logging purposes
-        deploy:
-            placement:
-                constraints: [node.role == manager]
-        networks:
-            - kong-ui
-            - logging
+  recipemanager-service:
+    image: recipemanager:latest
+    # build:
+    #   dockerfile: ./recipemanager/Dockerfile
+    #   # context: .
+    #   target: dev
+    container_name: recipemanager
+    hostname: recipemanager
+    ports:
+      - "8080:80"
+    environment:                                                                
+      PGHOST: db
+      PGUSER: ${PGUSER}
+      PGPASSWORD: ${PGPASSWORD}
+      PGPORT: 5432
+      PGDATABASE: ${PGDATABASE}
+    volumes:
+      - ../:/usr/src/app
+    depends_on:
+      - db
+    networks:
+      - internal-network
+      - cluster
 
-    grafana:
-        image: grafana/grafana:latest
-        volumes:
-            - ./grafana/data:/var/lib/grafana
-            - ./grafana/grafana.ini:/etc/grafana/grafana.ini
-            - ./grafana/datasources:/etc/grafana/provisioning/datasources
-            - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
-        environment:
-            - GF_SECURITY_ADMIN_USER=admin
-            - GF_SECURITY_ADMIN_PASSWORD=admin
-        depends_on:
-            - db
-        ports:
-            - 3000:3000
-        deploy:
-            placement:
-                constraints: [node.role == manager]
-        networks:
-            - logging
-            - grafana-db
-    
-    prometheus:
-        image: prom/prometheus
-        volumes:
-            - ./prometheus/config.yml:/etc/prometheus/prometheus.yml
-        ports:
-            - 9090:9090
-        deploy:
-            placement:
-                constraints: [node.role == manager]
-        networks:
-            - logging
-    
-    node_exporter:
-        image: prom/node-exporter
-        deploy:
-            mode: global
-        volumes:
-            - /proc:/host/proc:ro
-            - /sys:/host/sys:ro
-            - /:/rootfs:ro
-        command:
-            - '--path.procfs=/host/proc'
-            - '--path.rootfs=/rootfs'
-            - '--path.sysfs=/host/sys'
-            - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
-        ports:
-            - 9100:9100
-        networks:
-            - logging
+  # mailing-service:
+  #   image: mailing:latest
+  #   container_name: mailing
+  #   hostname: mailing
+  #   ports:
+  #     - "0.0.0.0:8082:80"
+  #   # environment:                                                                
+  #   #   PGHOST: db
+  #   #   PGUSER: ${PGUSER}
+  #   #   PGPASSWORD: ${PGPASSWORD}
+  #   #   PGPORT: 5432
+  #   #   PGDATABASE: ${PGDATABASE}
+  #   volumes:
+  #     - ../:/usr/src/app
+  #   networks:
+  #     - internal-network
+  #     - cluster
 
-    rabbitmq:
-        image: rabbitmq:management-alpine
-        ports:
-            - 5672:5672
-            - 15672:15672
-        networks:
-            - logging
-            - rmq
-        hostname: rabbitmq
-    
-    worker:
-        image: mobylab/idp-laborator7-worker
-        depends_on:
-            - rabbitmq
-        networks:
-            - rmq
-    
-    testapp:
-        image: mobylab/idp-laborator7-testapp
-        ports:
-            - 5000:5000
-        depends_on:
-            - rabbitmq
-        networks:
-            - logging
-            - rmq
+  db:
+    image: postgres:12
+    container_name: db
+    environment:
+      POSTGRES_USER: ${PGUSER}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_DB: ${PGDATABASE}
+      TZ: Europe/Bucharest
+      PGTZ: Europe/Bucharest
+    ports:
+      - ${PGPORT}:5432
+    volumes:
+      - ./database/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - db-volume:/var/lib/postgresql/data
+    networks:
+      - internal-network
 
+  # db:
+  #     image: postgres:12
+  #     environment:
+  #         POSTGRES_USER: admin #TODO
+  #         POSTGRES_PASSWORD: admin #TODO
+  #     deploy:
+  #         placement:
+  #             constraints:
+  #                 - "node.role==manager"
+  #     ports:
+  #         - 9999:5432
+  #     volumes:
+  #         - ./database/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+  #         - db-volume:/var/lib/postgresql/data
+  #     networks:
+  #         - recipe-manager-db
+  #         - mass-halls-manager-db
+  #         - grafana-db
+
+  kong:
+      image: kong:latest
+      volumes:
+          - ./kong:/usr/local/kong/declarative
+      environment:
+          KONG_DATABASE: 'off'
+          KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong-plugins.yml
+          KONG_PROXY_ACCESS_LOG: /dev/stdout
+          KONG_ADMIN_ACCESS_LOG: /dev/stdout
+          KONG_PROXY_ERROR_LOG: /dev/stderr
+          KONG_ADMIN_ERROR_LOG: /dev/stderr
+          KONG_ADMIN_LISTEN: 0.0.0.0:8001, 0.0.0.0:8444 ssl #CHECK in case of error
+      ports:
+          - 90:8000
+          - 443:8443
+          - 8001:8001
+          - 8444:8444
+          #TODO logging purposes
+      deploy:
+          placement:
+              constraints: [node.role == manager]
+      networks:
+          - kong-ui
+          - logging
+          - internal-network
+
+  grafana:
+      image: grafana/grafana:latest
+      volumes:  
+          - ./grafana/data:/var/lib/grafana
+          - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+          - ./grafana/datasources:/etc/grafana/provisioning/datasources
+          - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      environment:
+          - GF_SECURITY_ADMIN_USER=admin
+          - GF_SECURITY_ADMIN_PASSWORD=admin
+      depends_on:
+          - db
+      ports:
+          - 3000:3000
+      deploy:
+          placement:
+              constraints: [node.role == manager]
+      networks:
+          - logging
+          - grafana-db
+          - internal-network
+  
+  prometheus:
+      image: prom/prometheus
+      volumes:
+          - ./prometheus/config.yml:/etc/prometheus/prometheus.yml
+      ports:
+          - 9090:9090
+      deploy:
+          placement:
+              constraints: [node.role == manager]
+      networks:
+          - logging
+          - internal-network
+  
+  node_exporter:
+      image: prom/node-exporter
+      deploy:
+          mode: global
+      volumes:
+          - /proc:/host/proc:ro
+          - /sys:/host/sys:ro
+          - /:/rootfs:ro
+      command:
+          - '--path.procfs=/host/proc'
+          - '--path.rootfs=/rootfs'
+          - '--path.sysfs=/host/sys'
+          - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      ports:
+          - 9100:9100
+      networks:
+          - logging
+
+  rabbitmq:
+      image: rabbitmq:management-alpine
+      ports:
+          - 5672:5672
+          - 15672:15672
+      networks:
+          - logging
+          - rmq
+          - internal-network
+          - cluster
+      hostname: rabbitmq
+  
+  worker:
+      image: mobylab/idp-laborator7-worker
+      depends_on:
+          - rabbitmq
+      networks:
+          - rmq
+  
+  testapp:
+      image: mobylab/idp-laborator7-testapp
+      ports:
+          - 5000:5000
+      depends_on:
+          - rabbitmq
+      networks:
+          - logging
+          - rmq
 
 volumes:
     db-volume:
@@ -189,3 +276,6 @@ networks:
     grafana-db:
     logging:
     rmq:
+    internal-network:
+    cluster:
+      external: true

@@ -1,10 +1,12 @@
 #!/bin/bash
 
-sudo docker swarm init
+# sudo docker swarm init
 
-sudo docker build ./ui -t ui
-sudo docker build ./recipe-manager-service -t recipe-manager-service
-sudo docker build ./mass-halls-manager-service -t mass-halls-manager-service
+# sudo docker build ./ui -t ui
+docker build ../messhallmanager -t messhallmanager
+docker build ../recipemanager -t recipemanager
+docker build ../mailing -t mailing
 
-sudo docker stack deploy -c docker-compose-portainer.yml PortainerStack
-sudo docker stack deploy -c docker-compose.yml WarDineStack
+docker-compose up
+# sudo docker stack deploy -c docker-compose-portainer.yml PortainerStack
+# sudo docker stack deploy -c docker-compose.yml WarDineStack
